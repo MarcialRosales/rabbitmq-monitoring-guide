@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+set -eu
+SERVICE_INSTANCE_NAME=${1:?First parameter is the RabbitMQ service instance name}
+DASHBOARD_TEMPLATE_ID=${2:?Second paramter is the dashboard template id}
+DASHBOARD_TITLE=${3:-""}
+
+DASHBOARD_TEMPLATE_FILE="templates/$DASHBOARD_TEMPLATE_ID.json"
+
+[ -f $DASHBOARD_TEMPLATE_FILE ] || (echo "Dashboard template file $DASHBOARD_TEMPLATE_FILE not found"; exit 1)
+
+SERVICE_GUID="service-instance_$(cf service $SERVICE_INSTANCE_NAME --guid)"
+ORG="$(cf target | awk "/org/ {print \$2}")"
+SPACE="$(cf target | awk "/space/ {print \$2}")"
+
+function set-variable() {
+  jq "map(if .name == \"${1}\" then . + { "default" : \"${2}\" } else . end)"
+}
+
+function set-title() {
+    jq ".title = \"${1}\""
+}
+
+function default-title() {
+  echo "RabbitMQ-$ORG-$SPACE-$SERVICE_INSTANCE_NAME-$DASHBOARD_TEMPLATE_ID-dashboard"
+}
+
+[ -z "$DASHBOARD_TITLE" ] && ( DASHBOARD_TITLE=$(default-title) )
+
+VAR=`jq .template_variables $DASHBOARD_TEMPLATE_FILE | set-variable service-instance $SERVICE_GUID `
+jq ".template_variables = ${VAR}" $DASHBOARD_TEMPLATE_FILE  | set-title $DASHBOARD_TITLE

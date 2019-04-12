@@ -1,0 +1,8 @@
+*.log
+.DS_store
+mk/*
+logs/*
+*.pyc
+secrets
+*/dashboards/*
+*/monitors/*

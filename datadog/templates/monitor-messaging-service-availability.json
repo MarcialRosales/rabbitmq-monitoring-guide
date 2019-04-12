@@ -1,0 +1,27 @@
+{
+  "tags": [
+    "org:[[SERVICE_INSTANCE_ORG]]",
+    "space:[[SERVICE_INSTANCE_SPACE]]",
+    "instance:[[SERVICE_INSTANCE_NAME]]",
+    "service-instance:[[SERVICE_INSTANCE_GUID]]"
+  ],
+  "query": "max(last_1m):sum:cloudfoundry.nozzle.p.rabbitmq_rabbitmq_heartbeat{deployment:service-instance_[[SERVICE_INSTANCE_GUID]]} < 1",
+  "message": "[[NOTIF_RECIPIENT]]\n\n{{#is_alert}} There is no service availability. There are {{comparator}} {{threshold}} instances available {{/is_alert}}  \n\n{{^is_alert}} Service availability has dropped. There are, at least, {{warn_threshold}} instances available {{/is_alert}}\n\nCheck out dashboard [[DASHBOARD_URL]] for further investigation",
+  "multi": false,
+  "name": "Messaging service availability",
+  "type": "metric alert",
+  "options": {
+    "notify_audit": false,
+    "timeout_h": 0,
+    "include_tags": true,
+    "no_data_timeframe": null,
+    "require_full_window": false,
+    "notify_no_data": false,
+    "renotify_interval": 0,
+    "escalation_message": "",
+    "thresholds": {
+      "critical": [[CRITICAL_THRESHOLD]],
+      "warning": [[WARNING_THRESHOLD]]
+    }
+  }
+}

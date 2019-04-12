@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -eu
+
+export SERVICE_INSTANCE_NAME=${1:?First parameter is the RabbitMQ service instance name}
+MONITOR_TEMPLATE_ID=${2:?Second parameter is the template name without monitor prefix and json extension}
+export CRITICAL_THRESHOLD=${3:?Third parameter is the critical threshold}
+export WARNING_THRESHOLD=${4:?Forth parameter is the warning threshdl}
+export NOTIF_RECIPIENT=${5:?Fifth parameter is the notification receipient, e.g. email address}
+export DASHBOARD_URL=${6:?Sixth parameter is the dashboard url}
+
+MONITOR_TEMPLATE_FILE="templates/monitor-$MONITOR_TEMPLATE_ID.json"
+
+[ -f $MONITOR_TEMPLATE_FILE ] || (echo "Monitor template file $MONITOR_TEMPLATE_FILE not found"; exit 1)
+
+export SERVICE_INSTANCE_GUID="service-instance_$(cf service $SERVICE_INSTANCE_NAME --guid)"
+export SERVICE_INSTANCE_ORG="$(cf target | awk "/org/ {print \$2}")"
+export SERVICE_INSTANCE_SPACE="$(cf target | awk "/space/ {print \$2}")"
+
+bin/render ${MONITOR_TEMPLATE_FILE}
