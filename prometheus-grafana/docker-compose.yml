@@ -12,9 +12,9 @@ services:
     image: pivotalrabbitmq/rabbitmq-prometheus:3.8-2019.04.15
     networks:
       - back-tier
-    ports:
-      - 15672:15672
-      - 15692:15692
+#    ports:
+#      - 15672:15672
+#      - 15692:15692
 
   prometheus:
     image: prom/prometheus:v2.1.0
