@@ -1,0 +1,38 @@
+version: '3'
+
+volumes:
+    prometheus_data: {}
+    grafana_data: {}
+
+networks:
+  back-tier:
+
+services:
+  rabbitmq:
+    image: pivotalrabbitmq/rabbitmq-prometheus:3.8-2019.04.15
+    networks:
+      - back-tier
+    ports:
+      - 15672:15672
+      - 15692:15692
+
+  prometheus:
+    image: prom/prometheus:v2.1.0
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    networks:
+     - back-tier
+
+  grafana:
+    image: grafana/grafana
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - back-tier
